@@ -5,7 +5,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.fomat.newsonline.Models.News
 import com.google.android.material.imageview.ShapeableImageView
+import com.squareup.picasso.Picasso
 
 class MyAdapter(private val newsList : ArrayList<News>) :
     RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
@@ -18,8 +20,8 @@ class MyAdapter(private val newsList : ArrayList<News>) :
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         var currentItem = newsList[position]
-        holder.titleImage.setImageResource(currentItem.titleImage)
-        holder.tvHeading.text = currentItem.heading
+        Picasso.get().load(currentItem.image).into(holder.titleImage)
+        holder.tvHeading.text = currentItem.title
     }
 
     override fun getItemCount(): Int {
