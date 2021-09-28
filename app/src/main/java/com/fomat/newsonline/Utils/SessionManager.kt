@@ -9,6 +9,7 @@ class SessionManager (context : Context) {
 
     companion object {
         const val NEWS_LIST= "news_list"
+        const val GOOGLE_TOKEN= "google_token"
     }
 
     fun saveNewsList(news : String){
@@ -17,7 +18,17 @@ class SessionManager (context : Context) {
         editor.apply()
     }
 
+    fun saveGoogleToken(token : String){
+        val editor = prefs.edit()
+        editor.putString(GOOGLE_TOKEN, token)
+        editor.apply()
+    }
+
     fun fetchNewsList() : String? {
         return prefs.getString(NEWS_LIST, null)
+    }
+
+    fun fetchGoogleToken() : String? {
+        return prefs.getString(GOOGLE_TOKEN, null)
     }
 }

@@ -1,4 +1,4 @@
-package com.fomat.newsonline.services
+package com.fomat.newsonline.Services
 
 import com.fomat.newsonline.Models.NewsData
 import retrofit2.Call

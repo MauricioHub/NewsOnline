@@ -1,24 +1,19 @@
 package com.fomat.newsonline
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.fomat.newsonline.Models.News
-import com.fomat.newsonline.Models.NewsData
 import com.fomat.newsonline.Utils.SessionManager
-import com.fomat.newsonline.services.ApiService
+import com.fomat.newsonline.Services.ApiService
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 
-class MainActivity : AppCompatActivity() {
+class NewsActivity : AppCompatActivity() {
 
     private lateinit var newRecyclerView: RecyclerView
     private lateinit var newArrayList: ArrayList<News>
@@ -30,7 +25,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_news)
         sessionManager = SessionManager(this)
         val gson = Gson()
         val jsonText: String? = sessionManager.fetchNewsList()
