@@ -1,20 +1,22 @@
 package com.fomat.newsonline
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.fomat.newsonline.Utils.SessionManager
 import com.fomat.newsonline.Models.News
 import com.fomat.newsonline.Models.NewsData
+import com.fomat.newsonline.Utils.SessionManager
 import com.fomat.newsonline.services.ApiService
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,6 +32,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         sessionManager = SessionManager(this)
+        val gson = Gson()
+        val jsonText: String? = sessionManager.fetchNewsList()
+        val itemType = object : TypeToken<ArrayList<News>>() {}.type
+        newArrayList = gson.fromJson<ArrayList<News>>(jsonText, itemType)
 
         val retrofit : Retrofit = Retrofit.Builder()
             .baseUrl("http://api.mediastack.com/v1/")
@@ -70,10 +76,11 @@ class MainActivity : AppCompatActivity() {
         newRecyclerView = findViewById(R.id.recyclerView)
         newRecyclerView.layoutManager = LinearLayoutManager(this)
         newRecyclerView.setHasFixedSize(true)
+        newRecyclerView.adapter = MyAdapter(newArrayList)
 
-        newArrayList = arrayListOf<News>()
-        getUserData()
-        getCathegorizedNews()
+        //newArrayList = arrayListOf<News>()
+        //getUserData()
+        //getCathegorizedNews()
         //doLogin()
     }
 
