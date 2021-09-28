@@ -35,8 +35,6 @@ class LoginActivity : AppCompatActivity() {
         service = retrofit.create<ApiService>(ApiService::class.java)
 
         btnLogin.setOnClickListener(){
-            Toast.makeText(this, "You clicked me.", Toast.LENGTH_SHORT).show()
-            Log.i("respuesta: ", "AUTENTICADO !!!!!!!!")
             getCathegorizedNews()
         }
     }

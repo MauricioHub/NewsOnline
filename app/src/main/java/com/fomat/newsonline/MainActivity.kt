@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
             .build()
         service = retrofit.create<ApiService>(ApiService::class.java)
 
-        imageId = arrayOf(
+        /*imageId = arrayOf(
             R.drawable.downloada,
             R.drawable.downloadb,
             R.drawable.imagesa,
@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity() {
             "notice 5",
             "notice 6",
             "notice 7"
-        )
+        )*/
 
         newRecyclerView = findViewById(R.id.recyclerView)
         newRecyclerView.layoutManager = LinearLayoutManager(this)
@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity() {
         //doLogin()
     }
 
-    private fun getUserData() {
+    /*private fun getUserData() {
         for (i in imageId.indices){
             val news = News("", "", "", "",
                 "", "", "", "",
@@ -94,7 +94,7 @@ class MainActivity : AppCompatActivity() {
         newRecyclerView.adapter = MyAdapter(newArrayList)
     }
 
-    /*fun doLogin(){
+    fun doLogin(){
         service.login(email = "09243388284", password = "123456")
             .enqueue(object : Callback<UserResponse> {
                 override fun onResponse(call: Call<UserResponse>?, response: Response<UserResponse>?) {
@@ -109,7 +109,7 @@ class MainActivity : AppCompatActivity() {
                     t?.printStackTrace()
                 }
             })
-    }*/
+    }
 
     fun getCathegorizedNews(){
         service.getCathegorizedNews().enqueue(object : Callback<NewsData> {
@@ -121,5 +121,5 @@ class MainActivity : AppCompatActivity() {
                 t?.printStackTrace()
             }
         })
-    }
+    }*/
 }
