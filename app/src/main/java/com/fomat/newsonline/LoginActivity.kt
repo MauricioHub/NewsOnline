@@ -72,7 +72,7 @@ class LoginActivity : AppCompatActivity() {
                     val dataList: List<News> = posts?.data
                     val jsonText = gson.toJson(dataList)
                     sessionManager.saveNewsList(jsonText)
-                    callNewsActivity()
+                    throwMainActivity()
                 } else {
                     Log.i("Error>>", Gson().toJson(posts))
                 }
@@ -83,8 +83,13 @@ class LoginActivity : AppCompatActivity() {
         })
     }
 
-    fun callNewsActivity(){
+    fun throwNewsActivity(){
         val intent = Intent(this, NewsActivity::class.java)
+        startActivity(intent)
+    }
+
+    fun throwMainActivity(){
+        val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
     }
 
