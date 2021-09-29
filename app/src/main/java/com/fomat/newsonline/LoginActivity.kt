@@ -9,6 +9,7 @@ import com.fomat.newsonline.Models.News
 import com.fomat.newsonline.Models.NewsData
 import com.fomat.newsonline.Utils.SessionManager
 import com.fomat.newsonline.Services.ApiService
+import com.fomat.newsonline.Utils.Globals
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.*
 import com.google.android.gms.common.api.ApiException
@@ -21,8 +22,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class LoginActivity : AppCompatActivity() {
 
-    private val webClientAuth = "689677168839-um3nehqhe7pla4fp8jmj5gb09frmgli4.apps.googleusercontent.com"
-    private val RC_SIGN_IN = 9001
     lateinit var mGoogleSignInClient: GoogleSignInClient
     lateinit var service : ApiService
     private lateinit var sessionManager : SessionManager
@@ -35,13 +34,13 @@ class LoginActivity : AppCompatActivity() {
         val token = sessionManager.fetchGoogleToken()
 
         val retrofit : Retrofit = Retrofit.Builder()
-            .baseUrl("http://api.mediastack.com/v1/")
+            .baseUrl(Globals.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         service = retrofit.create<ApiService>(ApiService::class.java)
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(webClientAuth)
+            .requestIdToken(Globals.GOOGLE_CLIENT_AUTH)
             .requestEmail()
             .build()
 
@@ -56,10 +55,6 @@ class LoginActivity : AppCompatActivity() {
                 getCathegorizedNews()
             }
         }
-
-        /*btnLogin.setOnClickListener(){
-            getCathegorizedNews()
-        }*/
     }
 
     fun getCathegorizedNews(){
@@ -83,11 +78,6 @@ class LoginActivity : AppCompatActivity() {
         })
     }
 
-    fun throwNewsActivity(){
-        val intent = Intent(this, NewsActivity::class.java)
-        startActivity(intent)
-    }
-
     fun throwMainActivity(){
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
@@ -96,15 +86,8 @@ class LoginActivity : AppCompatActivity() {
     private fun signIn() {
         val signInIntent = mGoogleSignInClient.signInIntent
         startActivityForResult(
-            signInIntent, RC_SIGN_IN
+            signInIntent, Globals.RC_SIGN_IN
         )
-    }
-
-    private fun signOut() {
-        mGoogleSignInClient.signOut()
-            .addOnCompleteListener(this) {
-                // Update your UI here
-            }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -116,7 +99,7 @@ class LoginActivity : AppCompatActivity() {
         }*/
         super.onActivityResult(requestCode, resultCode, data)
 
-        if(requestCode == RC_SIGN_IN) {
+        if(requestCode == Globals.RC_SIGN_IN) {
             val result : GoogleSignInResult? = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
             if (result != null) {
                 handleSignInResult(result)

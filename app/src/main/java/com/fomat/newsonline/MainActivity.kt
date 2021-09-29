@@ -8,16 +8,30 @@ import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import com.fomat.newsonline.Utils.Globals
+import com.fomat.newsonline.Utils.SessionManager
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var toggle: ActionBarDrawerToggle
     lateinit var drawerLayout: DrawerLayout
+    lateinit var mGoogleSignInClient: GoogleSignInClient
+    private lateinit var sessionManager : SessionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        sessionManager = SessionManager(this)
+
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(Globals.GOOGLE_CLIENT_AUTH)
+            .requestEmail()
+            .build()
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
 
         drawerLayout = findViewById(R.id.drawerLayout)
         val navView : NavigationView = findViewById(R.id.nav_view)
@@ -34,7 +48,7 @@ class MainActivity : AppCompatActivity() {
             when(it.itemId){
                 R.id.nav_profile -> replaceFragment(ProfileFragment(), it.title.toString())
                 R.id.nav_news -> replaceFragment(NewsFragment(), it.title.toString())
-                R.id.nav_logout -> throwMainActivity()
+                R.id.nav_logout -> signOut()
             }
 
             true
@@ -50,6 +64,14 @@ class MainActivity : AppCompatActivity() {
         setTitle(title)
     }
 
+    private fun signOut() {
+        mGoogleSignInClient.signOut()
+            .addOnCompleteListener(this) {
+                sessionManager.saveGoogleToken("")
+                throwLoginActivity()
+            }
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if(toggle.onOptionsItemSelected(item)){
             return true
@@ -57,7 +79,7 @@ class MainActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun throwMainActivity(){
+    private fun throwLoginActivity(){
         intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
     }
