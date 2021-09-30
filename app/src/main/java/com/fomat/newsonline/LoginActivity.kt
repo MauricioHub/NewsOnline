@@ -58,7 +58,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     fun getCathegorizedNews(){
-        service.getCathegorizedNews().enqueue(object : Callback<NewsData> {
+        service.getCathegorizedNews(Globals.generalCategory).enqueue(object : Callback<NewsData> {
             override fun onResponse(call: Call<NewsData>?, response: Response<NewsData>?) {
                 val posts = response?.body()
                 Log.i("respuesta: ", Gson().toJson(posts))
