@@ -13,6 +13,8 @@ import com.fomat.newsonline.Utils.Globals
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.*
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.gson.Gson
 import retrofit2.Call
 import retrofit2.Callback
@@ -23,6 +25,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 class LoginActivity : AppCompatActivity() {
 
     lateinit var mGoogleSignInClient: GoogleSignInClient
+    lateinit var firebaseAuth: FirebaseAuth
     lateinit var service : ApiService
     private lateinit var sessionManager : SessionManager
 
@@ -31,13 +34,14 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
         val btnLogin : Button = findViewById(R.id.btnLogin)
         sessionManager = SessionManager(this)
-        val token = sessionManager.fetchGoogleToken()
+        //val token = sessionManager.fetchGoogleToken()
 
         val retrofit : Retrofit = Retrofit.Builder()
             .baseUrl(Globals.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         service = retrofit.create<ApiService>(ApiService::class.java)
+
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(Globals.GOOGLE_CLIENT_AUTH)
@@ -46,14 +50,24 @@ class LoginActivity : AppCompatActivity() {
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
 
+        firebaseAuth = FirebaseAuth.getInstance()
+        checkUser()
+
         btnLogin.setOnClickListener {
             signIn()
         }
 
-        if (token != null) {
+        /*if (token != null) {
             if (token.compareTo("")!=0){
                 getCathegorizedNews()
             }
+        }*/
+    }
+
+    private fun checkUser(){
+        val firebaseUser = firebaseAuth.currentUser
+        if(firebaseUser != null){
+            getCathegorizedNews()
         }
     }
 
@@ -81,6 +95,7 @@ class LoginActivity : AppCompatActivity() {
     fun throwMainActivity(){
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
     private fun signIn() {
@@ -91,26 +106,50 @@ class LoginActivity : AppCompatActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        //super.onActivityResult(requestCode, resultCode, data)
-        /*if (requestCode == RC_SIGN_IN) {
-            val task =
-                GoogleSignIn.getSignedInAccountFromIntent(data)
-            handleSignInResult(task)
-        }*/
         super.onActivityResult(requestCode, resultCode, data)
-
         if(requestCode == Globals.RC_SIGN_IN) {
-            val result : GoogleSignInResult? = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
-            if (result != null) {
-                handleSignInResult(result)
+            Log.d("RESULTADO:", "onActivityResult: Google signin intent result")
+            //val accountTask = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
+            val accountTask = GoogleSignIn.getSignedInAccountFromIntent(data)
+            try {
+                val account = accountTask.getResult(ApiException::class.java)
+                firebaseAuthWithGoogleAccount(account)
+                
+            } catch (e: Exception){
+                Log.d("RESULTADO:", "onAQctivityResult: " + e.message)
             }
         }
     }
 
-    private fun handleSignInResult(signInResult: GoogleSignInResult) {
+    private fun firebaseAuthWithGoogleAccount(account: GoogleSignInAccount?) {
+        Log.d("RESULTADO:", "FirebaseAuthWithGoogleAccount: begin firebase auth with gogle account")
+        val credential = GoogleAuthProvider.getCredential(account!!.idToken, null)
+        firebaseAuth.signInWithCredential(credential)
+            .addOnSuccessListener { authResult ->
+                Log.d("RESULTADPO:", "firebaseAuthWithGoogleAccount: LoggedIn")
+
+                val firebaseUser = firebaseAuth.currentUser
+                val uid = firebaseUser!!.uid
+                val email = firebaseUser.email
+
+                Log.d("RESULTADO:", "firebaseAuthWithGoogleAccount Uid:" + uid)
+                Log.d("RESULTADO:", "firebaseAuthWithGoogleAccount: email:" + email)
+
+                if(authResult.additionalUserInfo!!.isNewUser){
+                    Log.d("RESULTADO:", "firebaseAuthWithGoogleAccount: Account created")
+                } else{
+                    Log.d("RESULTADPO:", "firebaseAuthWithGoogleAccount: existing user")
+                }
+                getCathegorizedNews()
+            }
+            .addOnFailureListener { e ->
+                Log.d("RESULTADPO:", "firebaseAuthWithGoogleAccount: Login Failed due to:" + e.message)
+            }
+    }
+
+    /*private fun handleSignInResult(signInResult: GoogleSignInResult) {
         try {
             if(signInResult.isSuccess) {
-                // Authenticated
                 val account : GoogleSignInAccount? = signInResult.signInAccount
 
                 // Signed in successfully
@@ -138,15 +177,10 @@ class LoginActivity : AppCompatActivity() {
                 Log.i("RESULTADO FALLIDO", "RESIULTADO FALLIDO.")
             }
 
-            /*val account = completedTask.getResult(
-                ApiException::class.java
-            )*/
-
         } catch (e: ApiException) {
-            // Sign in was unsuccessful
             Log.e(
                 "failed code=", e.statusCode.toString()
             )
         }
-    }
+    }*/
 }

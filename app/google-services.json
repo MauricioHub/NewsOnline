@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "689677168839",
+    "project_id": "newsonline-280921",
+    "storage_bucket": "newsonline-280921.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:689677168839:android:605ac9d65ac54b95370ee2",
+        "android_client_info": {
+          "package_name": "com.fomat.newsonline"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "689677168839-nl28m5tgdb5s41e9fv8q17fo7deefuvf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fomat.newsonline",
+            "certificate_hash": "ac4b984d7c35ced20857e6eab87b04831c43f05f"
+          }
+        },
+        {
+          "client_id": "689677168839-sv0iuc8umij1rkcti0422ppkrea76ojj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAcPy9fPACATvLIgSNA3BHwLKBmmTY5Xmo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "689677168839-sv0iuc8umij1rkcti0422ppkrea76ojj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

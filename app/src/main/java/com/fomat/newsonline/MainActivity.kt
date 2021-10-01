@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -14,12 +16,17 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.material.navigation.NavigationView
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var toggle: ActionBarDrawerToggle
     lateinit var drawerLayout: DrawerLayout
-    lateinit var mGoogleSignInClient: GoogleSignInClient
+    //lateinit var mGoogleSignInClient: GoogleSignInClient
+    lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var usernameTv : TextView
+    private lateinit var emailTv : TextView
+    private lateinit var usernameImg : ImageView
     private lateinit var sessionManager : SessionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,11 +34,14 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         sessionManager = SessionManager(this)
 
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        /*val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(Globals.GOOGLE_CLIENT_AUTH)
             .requestEmail()
             .build()
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso)*/
+
+        firebaseAuth = FirebaseAuth.getInstance()
+        checkUser()
 
         drawerLayout = findViewById(R.id.drawerLayout)
         val navView : NavigationView = findViewById(R.id.nav_view)
@@ -42,6 +52,13 @@ class MainActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         replaceFragment(ProfileFragment(), "Profile")
+
+        var headerView = navView.getHeaderView(0)
+        usernameTv = headerView.findViewById(R.id.usernameTv)
+        emailTv = headerView.findViewById(R.id.emailTv)
+        usernameImg = headerView.findViewById(R.id.usernameImg)
+        usernameTv.setText("Mauricio Guzman")
+        usernameImg.setImageDrawable(getResources().getDrawable(R.drawable.vladimir))
 
         navView.setNavigationItemSelectedListener {
             it.isChecked = true
@@ -65,11 +82,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun signOut() {
-        mGoogleSignInClient.signOut()
+        /*mGoogleSignInClient.signOut()
             .addOnCompleteListener(this) {
                 sessionManager.saveGoogleToken("")
                 throwLoginActivity()
-            }
+            }*/
+        firebaseAuth.signOut()
+        checkUser()
+    }
+
+    private fun checkUser() {
+        val firebaseUser = firebaseAuth.currentUser
+        if(firebaseUser == null){
+            throwLoginActivity()
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -82,6 +108,7 @@ class MainActivity : AppCompatActivity() {
     private fun throwLoginActivity(){
         intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
 }
