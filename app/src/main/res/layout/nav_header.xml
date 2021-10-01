@@ -11,7 +11,7 @@
         android:id="@+id/usernameImg"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:src="@drawable/google_icon"/>
+        android:src="@drawable/ic_baseline_person_24"/>
 
     <TextView
         android:id="@+id/usernameTv"
@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:paddingTop="8dp"
         android:textSize="20dp"
-        android:text="Robin Single"
+        android:text="John Doe"
         android:textColor="@color/black"
         android:textStyle="bold"/>
 
@@ -28,7 +28,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="16dp"
-        android:text="robisingle@gmail.com"/>
+        android:text="johndoe@gmail.com"/>
 
     <View
         android:layout_width="match_parent"

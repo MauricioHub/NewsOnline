@@ -6,24 +6,34 @@ import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.DocumentsContract
 import android.provider.MediaStore
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.fragment.app.Fragment
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 import java.io.File
+
 
 /**
  * A simple [Fragment] subclass.
@@ -33,8 +43,11 @@ import java.io.File
 class ProfileFragment : Fragment() {
     private val OPERATION_CAPTURE_PHOTO = 1
     private val OPERATION_CHOOSE_PHOTO = 2
+    private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var btnPicture: Button
+    private lateinit var btnSave: Button
     private lateinit var imageView: ImageView
+    private lateinit var usernameEtv: EditText
     private lateinit var contxt : Context
     private var mUri: Uri? = null
 
@@ -49,13 +62,51 @@ class ProfileFragment : Fragment() {
         // Inflate the layout for this fragment
         val view : View = inflater.inflate(R.layout.fragment_profile, container, false)
         btnPicture = view.findViewById(R.id.btnPicture)
+        btnSave = view.findViewById(R.id.btnSave)
         imageView = view.findViewById(R.id.imageView)
+        usernameEtv = view.findViewById(R.id.usernameEtv)
         contxt = requireContext()
+        firebaseAuth = FirebaseAuth.getInstance()
 
         btnPicture.setOnClickListener {
             openDialog()
         }
+
+        btnSave.setOnClickListener {
+            updateProfile()
+        }
         return view
+    }
+
+    private fun updateProfile(){
+        if (mUri != null){
+            firebaseAuth.currentUser.let { user ->
+                val username = usernameEtv.text.toString()
+                val photoURI = Uri.parse(mUri.toString())
+                val profileUpdates = UserProfileChangeRequest.Builder()
+                    .setDisplayName(username)
+                    .setPhotoUri(photoURI)
+                    .build()
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        if (user != null) {
+                            user.updateProfile(profileUpdates)
+                        }
+                        withContext(Dispatchers.Main){
+                            Toast.makeText(contxt, "Perfil de usuario actualizado de manera satisfactoria.",
+                                Toast.LENGTH_LONG).show()
+                        }
+                    } catch (e: Exception){
+                        withContext(Dispatchers.Main){
+                            Toast.makeText(contxt, e.message, Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+            }
+        } else{
+            Toast.makeText(contxt, "Debe cargar foto primero!", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun gallerySelected(){
@@ -97,9 +148,18 @@ class ProfileFragment : Fragment() {
         startActivityForResult(intent, OPERATION_CHOOSE_PHOTO)
     }
 
+    fun getImageUri(inContext: Context, inImage: Bitmap): Uri? {
+        val bytes = ByteArrayOutputStream()
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes)
+        val path = MediaStore.Images.Media.insertImage(inContext.contentResolver,
+            inImage, "Title", null)
+        return Uri.parse(path)
+    }
+
     private fun renderImage(imagePath: String?){
         if (imagePath != null) {
             val bitmap = BitmapFactory.decodeFile(imagePath)
+            mUri = getImageUri(contxt, bitmap)
             imageView?.setImageBitmap(bitmap)
         }
         else {
@@ -123,6 +183,7 @@ class ProfileFragment : Fragment() {
     private fun handleImageOnKitkat(data: Intent?) {
         var imagePath: String? = null
         val uri = data!!.data
+        mUri = uri
         //DocumentsContract defines the contract between a documents provider and the platform.
         if (DocumentsContract.isDocumentUri(contxt, uri)){
             val docId = DocumentsContract.getDocumentId(uri)

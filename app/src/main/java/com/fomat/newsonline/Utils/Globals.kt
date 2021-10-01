@@ -11,5 +11,6 @@ class Globals {
         const val healthCategory = "health"
         const val sportsCategory = "sports"
         const val technologyCategory = "technology"
+        const val TAG = "Resultado"
     }
 }

@@ -17,13 +17,14 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.squareup.picasso.Picasso
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var toggle: ActionBarDrawerToggle
     lateinit var drawerLayout: DrawerLayout
-    //lateinit var mGoogleSignInClient: GoogleSignInClient
     lateinit var firebaseAuth: FirebaseAuth
+    lateinit var navView : NavigationView
     private lateinit var usernameTv : TextView
     private lateinit var emailTv : TextView
     private lateinit var usernameImg : ImageView
@@ -33,18 +34,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         sessionManager = SessionManager(this)
-
-        /*val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(Globals.GOOGLE_CLIENT_AUTH)
-            .requestEmail()
-            .build()
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso)*/
-
         firebaseAuth = FirebaseAuth.getInstance()
         checkUser()
 
         drawerLayout = findViewById(R.id.drawerLayout)
-        val navView : NavigationView = findViewById(R.id.nav_view)
+        navView= findViewById(R.id.nav_view)
+        setProfileData()
 
         toggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
         drawerLayout.addDrawerListener(toggle)
@@ -53,13 +48,6 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         replaceFragment(ProfileFragment(), "Profile")
 
-        var headerView = navView.getHeaderView(0)
-        usernameTv = headerView.findViewById(R.id.usernameTv)
-        emailTv = headerView.findViewById(R.id.emailTv)
-        usernameImg = headerView.findViewById(R.id.usernameImg)
-        usernameTv.setText("Mauricio Guzman")
-        usernameImg.setImageDrawable(getResources().getDrawable(R.drawable.vladimir))
-
         navView.setNavigationItemSelectedListener {
             it.isChecked = true
             when(it.itemId){
@@ -67,9 +55,20 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_news -> replaceFragment(NewsFragment(), it.title.toString())
                 R.id.nav_logout -> signOut()
             }
-
             true
         }
+    }
+
+    private fun setProfileData(){
+        val firebaseUser = firebaseAuth.currentUser
+
+        var headerView = navView.getHeaderView(0)
+        usernameTv = headerView.findViewById(R.id.usernameTv)
+        emailTv = headerView.findViewById(R.id.emailTv)
+        usernameImg = headerView.findViewById(R.id.usernameImg)
+        usernameTv.setText(firebaseUser!!.displayName)
+        emailTv.setText(firebaseUser!!.email)
+        Picasso.get().load(firebaseUser!!.photoUrl).into(usernameImg)
     }
 
     private fun replaceFragment(fragment: Fragment, title: String){
@@ -82,11 +81,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun signOut() {
-        /*mGoogleSignInClient.signOut()
-            .addOnCompleteListener(this) {
-                sessionManager.saveGoogleToken("")
-                throwLoginActivity()
-            }*/
         firebaseAuth.signOut()
         checkUser()
     }

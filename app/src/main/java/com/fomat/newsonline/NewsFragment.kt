@@ -29,7 +29,6 @@ import retrofit2.converter.gson.GsonConverterFactory
  */
 class NewsFragment : Fragment() {
     // TODO: Rename and change types of parameters
-
     private lateinit var newRecyclerView: RecyclerView
     private lateinit var categoryRecyclerView: RecyclerView
     private lateinit var newArrayList: ArrayList<News>
